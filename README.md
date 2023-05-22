@@ -22,8 +22,8 @@ The `JumpRope.py` works
 5. display history (maybe not store the whole video at this stage)
 
 
-logs:
-May 21st:
+## logs
+### May 21st:
 #### install
 - docker:
 
