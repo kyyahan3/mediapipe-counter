@@ -2,8 +2,7 @@ import mediapipe as mp
 import cv2
 import numpy as np
 import datetime
-import matplotlib.pyplot as plt
-
+import base64
 
 # 防抖算法
 def curr_dy(pre_dy, y_mean1, y_mean2, y_mean3):
@@ -24,35 +23,24 @@ def if_add(stat, swings):
     else:
         return swings
 
-
+# return the processed video, motion count and current time
 def JRcount(video_path):
     mp_drawing = mp.solutions.drawing_utils  # helps draw different detections from holistic models
     mp_holistic = mp.solutions.holistic  # import holistic models (this is just for point tracking with colors)
     mp_pose = mp.solutions.pose  # mp pose
 
-    # Store the input video specifics
-    cap = cv2.VideoCapture(video_path)
-    n_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))  # 总帧数
-    fps = int(cap.get(cv2.CAP_PROP_FPS))  # 帧率信息
-    size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    encoded_frames = []
+    cap = cv2.VideoCapture(video_path)  # Store the input video specifics
 
-    cap = cv2.VideoCapture(video_path)
+    dyL_previous_round, dyR_previous_round, dyB_previous_round  = 0, 0, 0
 
-    dyL_previous_round = 0
-    dyR_previous_round = 0
-    dyB_previous_round = 0
     # counter variables
-    frame_count = 0
-    jump_count = 0
-    L_swings = 0
-    R_swings = 0
+    frame_count, jump_count,  = 0, 0
+    L_swings, R_swings = 0, 0
 
-    stat_L = []
-    stat_R = []
-    stat_B = []
-    posL = []  # 手
-    posR = []
-    posB = []  # 躯干
+    # right and left hand and body
+    stat_L, stat_R, stat_B = [], [], []
+    posL, posR, posB = [], [], []
 
     # Initiate Pose model
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
@@ -123,6 +111,11 @@ def JRcount(video_path):
             frame_count = frame_count + 1
             cv2.imshow('Raw Webcam Feed', image)
 
+            # Convert the frame to base64-encoded string
+            _, buffer = cv2.imencode('.jpg', frame)
+            encoded_frame = base64.b64encode(buffer).decode('utf-8')
+            encoded_frames.append(encoded_frame)
+
             if cv2.waitKey(10) & 0xFF == ord('q'):
                 break
 
@@ -131,4 +124,4 @@ def JRcount(video_path):
 
     time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    return time, "跳绳", jump_count
+    return time, "Jump Rope", jump_count, encoded_frames

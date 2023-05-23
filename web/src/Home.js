@@ -1,39 +1,42 @@
 import React ,{useState, Upload, useRef } from 'react';
-import { Select, Button, Layout, List, Card, Rate, Space } from 'antd';
-import {Link} from 'react-router-dom';
-import Buttons from './Buttons';
-//import DropDown from './DropDown';
+import { Select, Button, Layout, List, Space, message } from 'antd';
+import { Link } from 'react-router-dom';
+import VideoPlayer from './VideoPlayer';
+import axios from 'axios';
 
 import { VideoCameraAddOutlined } from '@ant-design/icons'
-import { Player } from "video-react";
+// import { Player } from "video-react";
 import '../node_modules/video-react/dist/video-react.css';
 
-//const {Content} = Layout;
-//const {Meta} = Card;
 
 
 // body overall component
 const Body = ({windowHeight}) => {
+    // variables send to back end
+    const [selectedVideo, setSelectedVideo] = useState(""); // store the video for back-end
+    const [selectedMotion, setSelectedMotion] = useState("")    // store the selected exercise type
+
     /*** Upload Vid ***/
-    const [src, setSrc] = useState("");
-    const [uploaded, setUploaded] = useState(false);
+    const [src, setSrc] = useState("");     // store the video URL for thumbnail
+    const [isUploaded, setIsUploaded] = useState(false);    // bool for checking if the video is uploaded successfully
     const fileInputRef = useRef();
 
-    const handleChange_vid = (event) => {
+    const handleChange_vid = async (event) => {
         try {
           // Get the uploaded file
           const file = event.target.files[0];
+          setSrc(URL.createObjectURL(file));    // Transform file into blob URL
+          setIsUploaded(true); // set isUploaded state to true
 
-          // Transform file into blob URL
-          setSrc(URL.createObjectURL(file));
-          setUploaded(true); // set uploaded state to true
+          setSelectedVideo(file);
+
         } catch (error) {
           console.error(error);
         }
     };
 
     const handleVideoClick = () => {
-    fileInputRef.current.click();
+        fileInputRef.current.click();
     };
 
     // Get the thumbnail
@@ -52,12 +55,70 @@ const Body = ({windowHeight}) => {
         };
 
     /***  Drop Down ***/
-    const [selected, setSelected] = useState(false)
+    const [isSelected, setSelected] = useState(false)
 
     const handleChange_select = (value: string) => {
-      console.log(`selected ${value}`);
+      console.log(`isSelected ${value}`);
       setSelected(true);
+      setSelectedMotion(value);
     };
+
+
+    const [response, setResponse] = useState({}); // store the response from the backend
+    const [videoFrames, setVideoFrames] = useState([]); // store only the video
+
+    const [frameIndex, setFrameIndex] = useState(0);
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+
+    const handleClick = () => {
+        // Construct the data payload to send to the backend
+        const data = {
+            video: selectedVideo,
+            clickInfo: selectedMotion,
+        };
+        const formData = new FormData();
+        formData.append('video', selectedVideo);
+        formData.append('clickInfo', selectedMotion); // Replace 'otherData' with the actual key and 'otherDataValue' with the value
+
+        axios
+            .post('/api/upload_video_endpoint', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+                })
+            .then(response => {
+                const responseData = response.data;
+                setResponse(responseData); // Update the response state with the data
+                setVideoFrames(`data:video/mp4;base64,${responseData.frames}`);
+                console.log(responseData.date, responseData.category, responseData.count);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    };
+
+    const BackendActionButton = ({ enabled = false }) => (
+      <div>
+        <Button
+            type="primary" block
+            style={{
+                backgroundColor:enabled ? 'rgba(0, 159, 93, 0.85)' : 'rgba(0, 159, 93, 0.25)',
+                color:"white",
+                fontSize: "18px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            }}
+            size="large"
+            disabled={!enabled}
+            onClick={handleClick}
+        >
+            <span style={{ display: "flex", alignItems: "center" }}>
+                <VideoCameraAddOutlined style={{ marginRight: "15px" }}/>
+                Start Counting
+            </span>
+        </Button>
+      </div>
+    );
+
 
     return (
         <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '80px' }}>
@@ -94,13 +155,14 @@ const Body = ({windowHeight}) => {
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <Buttons.Count enabled = { selected && uploaded } />
+                    <BackendActionButton enabled={isSelected && isUploaded} />
                 </div>
+
+                <VideoPlayer />
             </Space>
         </div>
     );
 }
-
 
 export default Body;
 

@@ -6,6 +6,7 @@ import "./index.css";
 import Head from './Head';
 import HomeBody from './Home';
 import Footer from './Foot';
+import VideoPlayer from './VideoPlayer';
 
 const App = () => {
 //  declare the bodyHeight is equal to window_Height - HeaderHeight -64
