@@ -2,7 +2,7 @@
 ### Front-end
 #### React + antd
 
-1. Home: the body of the Home page, with the function of uploading video, select motion category, and start counting button. All the functions are in `Buttons`(Count and Video), but I only called the Count and the rest are defined in the `Home.js`. This is because React does not support returning values in our traditional way and I need 2 boolean values to determine the status( color) of the counting button -- `select` and `upload`.
+1. Home: the body of the Home page, with the function of uploading video, select motion category, and start counting button. All the functions are defined in `Home.js`. This is because React does not support returning values in our traditional way and I need 2 boolean values to determine the status (color) of the counting button -- `select` and `upload`.
 2. Head: the heading with the project name and 2 pages tabs
 3. foot: the author name and other info
 4. App: the overall layout
@@ -20,7 +20,8 @@ The `JumpRope.py` works
 3. Log in 
 4. User database
 5. display history (maybe not store the whole video at this stage)
-
+6. add motion effect when the user click the video image (maybe on handleVideoClick)
+7. deal with multi click
 
 ## Logs
 ### May 21st:
