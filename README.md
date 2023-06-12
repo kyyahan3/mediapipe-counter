@@ -1,3 +1,6 @@
+## Introduction
+
+
 ## Done
 ### Front-end
 #### React + antd
@@ -15,24 +18,23 @@ The `JumpRope.py` works
 
 
 ## To-Do
-1. Home disable clicking the counting button when either no video is uploaded or no motion category is selected
-2. overwrite the previous video and display the processed video
-3. Log in 
-4. User database
-5. display history (maybe not store the whole video at this stage)
-6. add motion effect when the user click the video image (maybe on handleVideoClick)
-7. deal with multi click
+- overwrite the previous video and display the processed video
+- Log in 
+- User database
+- display history (maybe not store the whole video at this stage)
+- add motion effect when the user click the video image (maybe on handleVideoClick)
+- deal with multi click
 
 ## Logs
 ### May 21st:
 #### install
 - docker:
+    - start the docker: `docker start mediapipe_app`
+    - enter the doker: `docker exec -it mediapipe_app /bin/bash`
+    - enter the root/server: `cd root/server`
+    - run server: `run: python3 manage.py runserver 0.0.0.0:8081`
 
-    enter the doker: `docker exec it mediapipe_app /bin/bash`
-
-    start the docker: `docker start mediapipe_app`
-
-    copy the local config(pip and code) to docker
+    copy the local config (pip and code) to docker
     created a virtual environment in the docker called venv
 
     activate: `source venv/bin/activate`
@@ -41,8 +43,30 @@ The `JumpRope.py` works
 
     prep:
     create the `server`: django-admin startproject server
-    run: python3 manage.py runserver 0.0.0.0:8081
     create the `app`: python3 manage.py startapp
+    run: python3 manage.py runserver 0.0.0.0:8081
+    
+#### problem solved
+- Home disable clicking the counting button when either no video is uploaded or no motion category is selected
 
-#### APIs:
+
+### June 11st:
+#### how to start the project:
+- go to the web directoy and enter `npm start`
+- got to the server directoy (activate your virtual environment if applicable. Mine is `mediapipe`) and enter `python3 manage.py runserver 0.0.0.0:8081` for local server.
+- docker:
+    - start the docker: `docker start mediapipe_app`
+    - enter the doker: `docker exec -it mediapipe_app /bin/bash`
+    - enter the root/server: `cd root/server`
+    - run server: `python3 manage.py runserver 0.0.0.0:8081`
+
+    - exit docker: `exit`
+    - stop docker: `docker stop mediapipe_app`
+    - check docker list: `docker ps -a`
+
+#### new feature
+- add a count output text frame
+- add the video player button and display pop-up, but cannot paly the video
+    - maybe need to deploy on cloud?
+- add the get_processed_video api. note: the processed video will be stored in `/server/app`
 

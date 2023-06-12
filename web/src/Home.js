@@ -2,6 +2,8 @@ import React ,{useState, Upload, useRef } from 'react';
 import { Select, Button, Layout, List, Space, message } from 'antd';
 import { Link } from 'react-router-dom';
 import VideoPlayer from './VideoPlayer';
+import ProcessedVideo from './ProcessedVideo';
+
 import axios from 'axios';
 
 import { VideoCameraAddOutlined } from '@ant-design/icons'
@@ -13,7 +15,7 @@ import '../node_modules/video-react/dist/video-react.css';
 // body overall component
 const Body = ({windowHeight}) => {
     // variables send to back end
-    const [selectedVideo, setSelectedVideo] = useState(""); // store the video for back-end
+    const [selectedVideo, setSelectedVideo] = useState(""); // store the original video
     const [selectedMotion, setSelectedMotion] = useState("")    // store the selected exercise type
 
     /*** Upload Vid ***/
@@ -64,7 +66,7 @@ const Body = ({windowHeight}) => {
     };
 
 
-    const [response, setResponse] = useState({}); // store the response from the backend
+    const [response, setResponse] = useState(null); // store the response from the backend
     const [videoFrames, setVideoFrames] = useState([]); // store only the video
 
     const [frameIndex, setFrameIndex] = useState(0);
@@ -78,7 +80,7 @@ const Body = ({windowHeight}) => {
         };
         const formData = new FormData();
         formData.append('video', selectedVideo);
-        formData.append('clickInfo', selectedMotion); // Replace 'otherData' with the actual key and 'otherDataValue' with the value
+        formData.append('clickInfo', selectedMotion);
 
         axios
             .post('/api/upload_video_endpoint', formData, {
@@ -86,7 +88,7 @@ const Body = ({windowHeight}) => {
                 })
             .then(response => {
                 const responseData = response.data;
-                setResponse(responseData); // Update the response state with the data
+                setResponse(responseData); // get the backend result
                 setVideoFrames(`data:video/mp4;base64,${responseData.frames}`);
                 console.log(responseData.date, responseData.category, responseData.count);
             })
@@ -119,6 +121,10 @@ const Body = ({windowHeight}) => {
       </div>
     );
 
+    const [showProcessedVideo, setShowProcessedVideo] = useState(false);
+    const handleShowProcessedVideo = () => {
+        setShowProcessedVideo(!showProcessedVideo);
+    };      
 
     return (
         <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '80px' }}>
@@ -158,7 +164,20 @@ const Body = ({windowHeight}) => {
                     <BackendActionButton enabled={isSelected && isUploaded} />
                 </div>
 
-                <VideoPlayer />
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '30px', marginTop:'20px' }}>
+                    {response && (
+                        <div style={{ border: '1px solid gray', padding: '15px', borderRadius: '8px' }}>
+                            <p>Count: {response.count}</p>
+                            <p>Date: {response.date}</p>
+                        </div>
+                    )}
+                </div>
+
+
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '30px' }}>
+                    <Button onClick={handleShowProcessedVideo}>Play Processed Video</Button>
+                </div>
+                {showProcessedVideo && <ProcessedVideo enabled={response}/>}
             </Space>
         </div>
     );

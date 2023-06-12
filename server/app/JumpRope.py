@@ -25,12 +25,19 @@ def if_add(stat, swings):
 
 # return the processed video, motion count and current time
 def JRcount(video_path):
+    cap = cv2.VideoCapture(video_path)  # input video specifics
+    frame_width = int(cap.get(3))
+    frame_height = int(cap.get(4))
+
+    # save the processed video
+    processed_video_path = "./app/processed_vid.mp4"  # path to save the processed video
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    out = cv2.VideoWriter(processed_video_path, fourcc, cap.get(cv2.CAP_PROP_FPS), (frame_width, frame_height))
+
     mp_drawing = mp.solutions.drawing_utils  # helps draw different detections from holistic models
     mp_holistic = mp.solutions.holistic  # import holistic models (this is just for point tracking with colors)
     mp_pose = mp.solutions.pose  # mp pose
 
-    encoded_frames = []
-    cap = cv2.VideoCapture(video_path)  # Store the input video specifics
 
     dyL_previous_round, dyR_previous_round, dyB_previous_round  = 0, 0, 0
 
@@ -110,18 +117,15 @@ def JRcount(video_path):
 
             frame_count = frame_count + 1
             cv2.imshow('Raw Webcam Feed', image)
-
-            # Convert the frame to base64-encoded string
-            _, buffer = cv2.imencode('.jpg', frame)
-            encoded_frame = base64.b64encode(buffer).decode('utf-8')
-            encoded_frames.append(encoded_frame)
+            out.write(image)
 
             if cv2.waitKey(10) & 0xFF == ord('q'):
                 break
 
     cap.release()
+    out.release()
     cv2.destroyAllWindows()
 
     time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    return time, "Jump Rope", jump_count, encoded_frames
+    return time, "Jump Rope", jump_count
