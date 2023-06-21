@@ -18,7 +18,7 @@ const Body = ({windowHeight}) => {
     const [selectedVideo, setSelectedVideo] = useState(""); // store the original video
     const [selectedMotion, setSelectedMotion] = useState("")    // store the selected exercise type
 
-    /*** Upload Vid ***/
+    /*** Upload Video ***/
     const [src, setSrc] = useState("");     // store the video URL for thumbnail
     const [isUploaded, setIsUploaded] = useState(false);    // bool for checking if the video is uploaded successfully
     const fileInputRef = useRef();
@@ -72,6 +72,9 @@ const Body = ({windowHeight}) => {
     const [frameIndex, setFrameIndex] = useState(0);
     const [modalIsOpen, setModalIsOpen] = useState(false);
 
+    const [isLoading, setIsLoading] = useState(false); // loading component
+
+
     const handleClick = () => {
         // Construct the data payload to send to the backend
         const data = {
@@ -81,6 +84,8 @@ const Body = ({windowHeight}) => {
         const formData = new FormData();
         formData.append('video', selectedVideo);
         formData.append('clickInfo', selectedMotion);
+
+        setIsLoading(true); // set loading state to true
 
         axios
             .post('/api/upload_video_endpoint', formData, {
@@ -94,10 +99,14 @@ const Body = ({windowHeight}) => {
             })
             .catch(error => {
                 console.error(error);
+            })
+            .finally(() => {
+                setIsLoading(false); // stop loading regardless of success or error
             });
+            ;
     };
 
-    const BackendActionButton = ({ enabled = false }) => (
+    const BackendActionButton = ({ enabled = false, loading = false }) => (
       <div>
         <Button
             type="primary" block
@@ -110,8 +119,9 @@ const Body = ({windowHeight}) => {
                 alignItems: "center"
             }}
             size="large"
-            disabled={!enabled}
+            disabled={!enabled || loading}
             onClick={handleClick}
+            loading={loading}
         >
             <span style={{ display: "flex", alignItems: "center" }}>
                 <VideoCameraAddOutlined style={{ marginRight: "15px" }}/>
@@ -128,10 +138,8 @@ const Body = ({windowHeight}) => {
 
     return (
         <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '80px' }}>
-            <Space
-                direction="vertical"
-                style={{ width: '90%' }}
-            >
+            <Space direction="vertical" style={{ width: '90%' }}>
+                {/* Video Thumbnail */}
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '30px' }}>
                     <div onClick={handleVideoClick}>
                         {thumbnail ? <img src={thumbnail} alt="Video Thumbnail" /> : (
@@ -143,6 +151,7 @@ const Body = ({windowHeight}) => {
                     <input type="file" accept="video/*" onChange={handleChange_vid} ref={fileInputRef} hidden/>
                 </div>
 
+                {/* Select Exercise */}
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '30px' }}>
                     <Space wrap>
                         <Select
@@ -160,8 +169,9 @@ const Body = ({windowHeight}) => {
                       </Space>
                 </div>
 
+                {/* Start Counting */}
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <BackendActionButton enabled={isSelected && isUploaded} />
+                    <BackendActionButton enabled={isSelected && isUploaded} loading={isLoading} />
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '30px', marginTop:'20px' }}>
@@ -173,7 +183,7 @@ const Body = ({windowHeight}) => {
                     )}
                 </div>
 
-
+                {/* Process Video */}
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '30px' }}>
                     <Button onClick={handleShowProcessedVideo}>Play Processed Video</Button>
                 </div>
