@@ -1,7 +1,8 @@
 ## Introduction
+This is a WeChat mini-program backed by Mediapipe human posture recognition. I designed the algorithms to count the reps of different kinds of exercises including rope jumping, squats, pushups, ect. This counting can be done via real-time webcam and uploaded videos. 
 
+<img width="551" alt="wechat" src="https://github.com/kyyahan3/mediapipe-counter/assets/93264144/bcb7dc3e-4828-4f7e-b544-a67eb07ab17a">
 
-## Done
 ### Front-end
 #### React + antd
 
